@@ -116,6 +116,7 @@ module.exports = (w, h) => {
         init: init,
         verifyAccomodation: verifyAccomodation,
         accomodateInput: accomodateInput,
-        findResultOfInput: findResultOfInput
+        findResultOfInput: findResultOfInput,
+        getGrid: () => grid.map(row => row.map(cell => cell))
     }
 }

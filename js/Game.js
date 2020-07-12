@@ -8,7 +8,7 @@ let Game = (_server, _chnl) => {
     let server = _server;
     let chnl = _chnl;
     let capacity = 4;
-    const w = 5; const h = 5; const rackSize = 7;
+    const w = 8; const h = 8; const rackSize = 7;
 
     let board = Board(w, h);
     let bagOfTiles = BagOfTiles();
@@ -74,6 +74,8 @@ let Game = (_server, _chnl) => {
         place: place,
         xchange: xchange,
         pass: pass,
+
+        getBoardGrid: () => board.getGrid(),
 
         hasTurn: (playerId) => players[turn].id == playerId
     }
