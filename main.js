@@ -35,7 +35,12 @@ client.on("message", msg => {
 
         if (games.hasGame(msgServerId, msgChannelId)) {
             let game = games.getGame(msgServerId, msgChannelId);
-            cmd.execute(msgServerId, msgChannelId, msgAuthorId, args, msg, games, game);
+            if (!game.hasStarted() && cmd.needsGameInit) {
+                msg.channel.send("You can only use that command in a live game and this game has not started yet");
+                return;
+            } else {
+                cmd.execute(msgServerId, msgChannelId, msgAuthorId, args, msg, games, game);
+            }
         } else {
             if (cmd.needsGameDefn) {
                 msg.channel.send("No games running in this channel. Create one!"); 

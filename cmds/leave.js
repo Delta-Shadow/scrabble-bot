@@ -4,6 +4,7 @@ module.exports = {
     name: "leave",
     aliases: ["exit", "l", "e"],
     needsGameDefn: true,
+    needsGameInit: false,
     execute: (sid, cid, pid, args, msg, games, game) => {
         if (game.hasPlayer(pid)) {
             game.remPlayer(pid);

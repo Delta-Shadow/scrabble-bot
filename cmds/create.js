@@ -4,6 +4,7 @@ module.exports = {
     name: "create",
     aliases: ["new", "host", "c", "n"],
     needsGameDefn: false,
+    needsGameInit: false,
     execute: (sid, cid, pid, args, msg, games, game) => {
         msg.channel.startTyping();
 

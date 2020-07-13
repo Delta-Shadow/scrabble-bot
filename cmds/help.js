@@ -9,6 +9,7 @@ const helpEmbed = {
 module.exports = {
     name: "help",
     needsGameDefn: false,
+    needsGameInit: false,
     aliases: ["h"],
 
     execute: (sid, cid, pid, args, msg, games, game) => {

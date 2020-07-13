@@ -12,6 +12,7 @@ module.exports = {
     name: "destroy",
     aliases: ["unhost", "end", "d", "x"],
     needsGameDefn: true,
+    needsGameInit: false,
     execute: (sid, cid, pid, args, msg, games, game) => {
         msg.channel.startTyping();
 

@@ -4,6 +4,7 @@ module.exports = {
     name: "join",
     aliases: ["j"],
     needsGameDefn: true,
+    needsGameInit: false,
     execute: (sid, cid, pid, args, msg, games, game) => {
         msg.channel.startTyping();
 

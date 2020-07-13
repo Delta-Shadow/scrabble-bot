@@ -5,7 +5,7 @@ module.exports = (capacity) => {
 
     const getTiles = (indices) => indices.map(i => tiles[i]);
 
-    const getAllTiles = () => tiles;
+    const list = () => tiles.map(tile => tile);
 
     const remTiles = (indices) => { indices.forEach(i => {tiles.splice(i)}) }
 
@@ -22,7 +22,7 @@ module.exports = (capacity) => {
         remTiles: remTiles,
         putTiles: putTiles,
         pickTiles: pickTiles,
-        getAllTiles: getAllTiles,
+        list: list,
 
         holding: () => tiles.length,
         capacity: () => cap

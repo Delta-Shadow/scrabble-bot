@@ -24,14 +24,14 @@ let Game = (_server, _chnl) => {
 
     const remPlayer = (_id) => {
         let i = players.findIndex(player => player.id == _id);
-        bagOfTiles.put(players[i].rack.getAllTiles());
+        bagOfTiles.put(players[i].rack.list());
         players.splice(i);
     }
 
     const start = () => {
         board.init();
         bagOfTiles.init();
-        players.forEach((player) => {player.rack.putTiles( bagOfTiles.pick(7) )});
+        players.forEach(player => {player.rack.putTiles( bagOfTiles.pick(7) )});
         turn = 0;
         hasStarted = true;
     }
@@ -77,6 +77,7 @@ let Game = (_server, _chnl) => {
         pass: pass,
 
         getBoardGrid: () => board.getGrid(),
+        getRack: (pid) => players.find(p => p.id == pid).rack.list(),
 
         hasTurn: (playerId) => players[turn].id == playerId
     }

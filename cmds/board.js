@@ -12,6 +12,7 @@ const embedData = {
 module.exports = {
     name: "board",
     needsGameDefn: true,
+    needsGameInit: true,
     execute: (sid, cid, pid, args, msg, games, game) => {
         msg.channel.startTyping();
         msg.channel.send({
