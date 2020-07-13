@@ -10,15 +10,19 @@ module.exports = {
         let leader = msg.channel.members.get(game.getLeaderId());
         let leaderName = (leader.nickname || leader.user.username);
 
-        if (game.isLeader(pid)) {
-            /*
-             * game.start();
-            */
-            msg.channel.send({embed: {
-                title: "Let the Scrabbling begin!",
-            }});
+        if (game.hasMinPlayers()) {
+            if (game.isLeader(pid)) {
+                /*
+                 * game.start();
+                */
+                msg.channel.send({embed: {
+                    title: "Let the Scrabbling begin!",
+                }});
+            } else {
+                msg.channel.send("Only the creator (" + leaderName + ") can start this game");
+            }
         } else {
-            msg.channel.send("Only the creator (" + leaderName + ") can start this game");
+            msg.channel.send("You need atleast two players to start");
         }
 
         msg.channel.stopTyping();

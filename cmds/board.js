@@ -18,8 +18,7 @@ module.exports = {
             files: [{
                 attachment: boardImg(game.getBoardGrid()),
                 name: "board.png"
-            }],
-            embed: embedData
+            }]
         });
         msg.channel.stopTyping();
     }

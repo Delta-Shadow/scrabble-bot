@@ -66,6 +66,7 @@ let Game = (_server, _chnl) => {
         addPlayer: addPlayer,
         remPlayer: remPlayer,
         hasMaxPlayers: () => players.length == capacity,
+        hasMinPlayers: () => players.length > 1,
         isLeader: (playerId) => players[0].id == playerId,
         getLeaderId: () => players[0].id,
         hasStarted: () => hasStarted,

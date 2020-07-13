@@ -1,9 +1,10 @@
 module.exports = (w, h) => {
 
     const width = w; const height = h;
-    let grid = new Array(h).fill( new Array(w).fill(" ") );
+    const emptyVal = "";
+    let grid = new Array(h).fill( new Array(w).fill(emptyVal) );
 
-    const init = () => { grid.forEach(row => row.fill(" ")) }
+    const init = () => { grid.forEach(row => row.fill(emptyVal)) }
 
     const verifyAccomodation = (tiles, startingCell, axis, tileIndices) => {
         let cartesianInput = getCartesianInput(tiles, startingCell, axis);
@@ -13,14 +14,14 @@ module.exports = (w, h) => {
         //cartesianInput.forEach(input => {
         for (let i = 0; i < cartesianInput.length; i++) {
             let input = cartesianInput[i];
-            if (cellContains(input.x, input.y, " ")) {
+            if (cellContains(input.x, input.y, emptyVal)) {
                 // cell is empty
                 verifiedInput.push( cartesianInput[i] );
 
-                if (!cellContains(input.x+1, input.y, " ") ||
-                    !cellContains(input.x-1, input.y, " ") ||
-                    !cellContains(input.x, input.y+1, " ") ||
-                    !cellContains(input.x, input.y-1, " ") ) {
+                if (!cellContains(input.x+1, input.y, emptyVal) ||
+                    !cellContains(input.x-1, input.y, emptyVal) ||
+                    !cellContains(input.x, input.y+1, emptyVal) ||
+                    !cellContains(input.x, input.y-1, emptyVal) ) {
                     // cell has connected neighbours
                     verified = true;
                 } 
@@ -78,8 +79,8 @@ module.exports = (w, h) => {
         if (axis == "x") {
             a = xPos; b = xPos;
             while (!aTerminated && !bTerminated) {
-                if (!cellContains(a+1, yPos, ' ')) { a++ } else { aTerminated = true }
-                if (!cellContains(b-1, yPos, ' ')) { b-- } else { bTerminated = true }
+                if (!cellContains(a+1, yPos, emptyVal)) { a++ } else { aTerminated = true }
+                if (!cellContains(b-1, yPos, emptyVal)) { b-- } else { bTerminated = true }
             }
             for (let i = a; i >= b; i--) {
                 word += grid[yPos][i];
@@ -87,8 +88,8 @@ module.exports = (w, h) => {
         } else if (axis == "y") {
             a = yPos; b = yPos;
             while (!aTerminated && !bTerminated) {
-                if (!cellContains(xPos, a+1, ' ')) { a++ } else { aTerminated = true }
-                if (!cellContains(xPos, b-1, ' ')) { b-- } else { bTerminated = true }
+                if (!cellContains(xPos, a+1, emptyVal)) { a++ } else { aTerminated = true }
+                if (!cellContains(xPos, b-1, emptyVal)) { b-- } else { bTerminated = true }
             }
             for (let i = a; i >= b; i--) {
                 word += grid[i][xPos];
