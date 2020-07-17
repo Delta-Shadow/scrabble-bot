@@ -1,10 +1,22 @@
-module.exports = (w, h) => {
+let rules = require("../rules.js");
 
-    const width = w; const height = h;
+module.exports = () => {
+
+    const width = rules.boardW; const height = rules.boardH;
     const emptyVal = "";
     let grid = new Array(h).fill( new Array(w).fill(emptyVal) );
+    let premiums = {
+        word: {...rules.premiums.word},
+        letter: {...rules.premiums.letter}
+    }
 
-    const init = () => { grid.forEach(row => row.fill(emptyVal)) }
+    const init = () => { 
+        grid.forEach(row => row.fill(emptyVal));
+        premiums = {
+            word: {...rules.premiums.word},
+            letter: {...rules.premiums.letter}
+        }
+    }
 
     const verifyAccomodation = (tiles, startingCell, axis, tileIndices) => {
         let cartesianInput = getCartesianInput(tiles, startingCell, axis);
@@ -51,30 +63,32 @@ module.exports = (w, h) => {
 
     const accomodateInput = (cartesianInput) => { cartesianInput.forEach(input => { grid[input.y][input.x] = input.val }) }
 
-    const findResultOfInput = (cartesianInput, axis) => {
-        let result = {
-            // score, words: [ {word, ptns}, ... ]
-            words: findCreatedWords(cartesianInput, axis)
-        }
-        let sum = 0; words.forEach(word => {sum += word.ptns});
-        result.score = sum;
-        return result;
-    }
-
-    const findCreatedWords = (cartesianInputThatCausedUpdate, inputAxis) => {
+    const evaluateAccomodation = (cartesianInputThatCausedUpdate, inputAxis) => {
         let inp = cartesianInputThatCausedUpdate; // alias
         let perpendicularAxis = (inputAxis == "x") ? "y" : "x";
         let words = [];
-        words.push(findWord(inputAxis, inp[0].x, inp[0].y)); // find parallel word
-        inp.forEach((_inp) => { // find perpendicular word(s)
-            let word = findWord(perpendicularAxis, _inp.x, _inp.y);
-            if (word.length > 1) { words.push( {word: word, ptns: 0} ) }
+        // For Parallel
+        let w = findWord(inputAxis, inp[0].x, inp[0].y);
+        if (w != null) {words.push(w)}
+        // For Perpendicular
+        inp.forEach((_inp) => {
+            let w = findWord(perpendicularAxis, _inp.x, _inp.y);
+            if (w != null) { words.push( w ) }
         });
         return words;
+        /*words = [
+            word -> {premium: 1, letters: [
+                {
+                    val: "a",
+                    premium: 1
+                },
+            ]},
+        ]*/
     }
 
     const findWord = (axis, xPos, yPos) => {
-        let word = "";
+        let hasWordFormed = false;
+        let word = { premium: 1, letters: [] };
         let a; let b; let aTerminated = false; let bTerminated = false;
         if (axis == "x") {
             a = xPos; b = xPos;
@@ -82,8 +96,15 @@ module.exports = (w, h) => {
                 if (!cellContains(a+1, yPos, emptyVal)) { a++ } else { aTerminated = true }
                 if (!cellContains(b-1, yPos, emptyVal)) { b-- } else { bTerminated = true }
             }
-            for (let i = a; i >= b; i--) {
-                word += grid[yPos][i];
+            if (a != b) {
+                hasWordFormed = true;
+                for (let i = a; i >= b; i--) {
+                    let key = "t" + ((yPos * width) + i);
+                    let letter = {val: grid[yPos][i], premium: 1};
+                    if (premiums.letter.hasOwnProperty(key)) {letter.premium *= premiums.letter[key]; delete premiums.letter[key]};
+                    if (premiums.word.hasOwnProperty(key)) {word.premium *= premiums.word[key]; delete premiums.word[key]};
+                    word.letters.push(letter);
+                }
             }
         } else if (axis == "y") {
             a = yPos; b = yPos;
@@ -91,11 +112,18 @@ module.exports = (w, h) => {
                 if (!cellContains(xPos, a+1, emptyVal)) { a++ } else { aTerminated = true }
                 if (!cellContains(xPos, b-1, emptyVal)) { b-- } else { bTerminated = true }
             }
-            for (let i = a; i >= b; i--) {
-                word += grid[i][xPos];
+            if (a != b) {
+                hasWordFormed = true;
+                for (let i = a; i >= b; i--) {
+                    let key = "t" + ((i * width) + xPos);
+                    let letter = {val: grid[i][xPos], premium: 1};
+                    if (premiums.letter.hasOwnProperty(key)) {letter.premium *= premiums.letter[key]; delete premiums.letter[key]};
+                    if (premiums.word.hasOwnProperty(key)) {word.premium *= premiums.word[key]; delete premiums.word[key]};
+                    word.letters.push(letter);
+                }
             }
         }
-        return word;
+        return hasWordFormed ? word : null;
     }
 
     const getCartesianInput = (tiles, startingCell, axis) => {
@@ -117,7 +145,8 @@ module.exports = (w, h) => {
         init: init,
         verifyAccomodation: verifyAccomodation,
         accomodateInput: accomodateInput,
-        findResultOfInput: findResultOfInput,
-        getGrid: () => grid.map(row => row.map(cell => cell))
+        evaluateAccomodation: evaluateAccomodation,
+        getGrid: () => grid.map(row => row.map(cell => cell)),
+        totalSquares: () => width * height
     }
 }

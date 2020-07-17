@@ -1,7 +1,9 @@
+let rules = require("../rules.js");
+
 module.exports = (capacity) => {
 
     let tiles = [];
-    let cap = capacity;
+    let cap = rules.rackSize;
 
     const getTiles = (indices) => indices.map(i => tiles[i]);
 

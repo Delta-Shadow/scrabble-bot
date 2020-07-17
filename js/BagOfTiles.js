@@ -1,16 +1,15 @@
+let rules = require("../rules.js");
+
 module.exports = () => {
 
-    const TILE_FREQUENCY = {
-        d: 3, y: 7
-    }
-    
-    let tiles = {...TILE_FREQUENCY};
+    let tiles = {...rules.tileFrequency};
 
     const init = () => {
-        tiles = {...TILE_FREQUENCY};
+        tiles = {...rules.tileFrequency};
     }
 
-    const pick = (n) => {
+    const pick = (_n) => {
+        let total = amount(); let n = (_n > total) ? total : _n;
         let pickedTiles = [];
         while (n > 0) {
             let sum = Object.values(tiles).reduce((val, res) => res + val);

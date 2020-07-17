@@ -2,15 +2,15 @@
 const Board = require("./Board.js");
 const BagOfTiles = require("./BagOfTiles.js");
 const Rack = require("./Rack.js");
+const rules = require("../rules.js");
 
 let Game = (_server, _chnl) => {
 
     let server = _server;
     let chnl = _chnl;
     let capacity = 4;
-    const w = 8; const h = 8; const rackSize = 7;
 
-    let board = Board(w, h);
+    let board = Board();
     let bagOfTiles = BagOfTiles();
     let players = [
         // {id, Rack Instance, ptns}
@@ -36,24 +36,41 @@ let Game = (_server, _chnl) => {
         hasStarted = true;
     }
 
-    const place = (startingCell, inputAxis, tileIndices) => {
+    const place = (_startingCell, inputAxis, _tileIndices) => {
+        // basic input checking
+        let _err = null;
+        let startingCell = _startingCell - 1;
+        if (startingCell > board.totalSquares) {_err = "No such square exists. Come on."}
+        let tileIndices = _tileIndices.map(i => {
+            if (i - 1 > rack.capacity()) {_err = "You dont have a letter at the place " + i}
+            return i - 1;
+        );
+        if (_err != null) return {err: _err}
+        // input verification 
         let {verified, verifiedCartesianInput, indicesOfTilesToBeRemovedFromRack, errMsg} = board.verifyAccomodation( rack.getTiles(tileIndices), startingCell, inputAxis, tileIndices );
         if (verfified) {
             board.accomodateInput(verifiedCartesianInput);
-            let result = board.findResultOfInput(verifiedCartesianInput, inputAxis);
-            players[turn].score += result.score;
+            let words = board.evaluateInput(verifiedCartesianInput, inputAxis);
+            let score = 0;
+            words.forEach(word => {
+                let ptns = 0;
+                word.letters.forEach(letter => {ptns += rules.tileScore(letter.val) * letter.premium});
+                ptns *= word.premium; score += ptns;
+            })
+            players[turn].score += score;
             players[turn].rack.remTiles(indicesOfTilesToBeRemovedFromRack);
             players[turn].rack.putTiles(bagOfTiles.pick( rack.capacity() - rack.holding() ));
             pass();
-            return {code: 0};
+            return {err: null};
         } else {
-            return {code: 1, errMsg: errMsg};
+            return {err: errMsg};
         }
     }
 
-    let xchange = (tileIndices) => {
+    let xchange = (_tileIndices) => {
+        let tileIndices = _tileIndices.map(i => i - 1);
         bagOfTiles.put( players[turn].rack.pickTiles(tileIndices) );
-        players[turn].rack.putTiles(bagOfTiles.pick( rack.capacity - rack.holding ));
+        players[turn].rack.putTiles(bagOfTiles.pick( rack.capacity() - rack.holding() ));
         pass();
     }
 
