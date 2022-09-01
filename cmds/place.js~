@@ -1,0 +1,31 @@
+const theme = require("../theme.js");
+
+module.exports = {
+    name: "place",
+    aliases: ["put", "lay", "p", "l"],
+    needsGameDefn: true,
+    needsGameInit: true,
+    execute: (sid, cid, pid, args, msg, games, game) => {
+        if (game.hasTurn(pid)) {
+
+	    let firstCell; let axis; let tileIndices;
+
+            if (game.isItTheFirstMove()) {
+		axis = "
+	    }
+
+            let firstCell = parseInt( args[0].slice(0, args[0].length - 1) );
+            let axis = args[0].slice(args[0].length - 1);
+            let tileIndices = args.splice(1, args.length).map(i => parseInt(i));
+
+            let result = game.place(firstCell, axis, tileIndices);
+            if (result.err == null) {
+                msg.channel.send("Your move was placed");
+            } else { // something was wrong in the input
+                msg.channel.send("There was an issue with your Input. " + result.errMsg);
+            }
+        } else {
+            msg.channel.send("It is not your turn to play");
+        }
+    }
+}

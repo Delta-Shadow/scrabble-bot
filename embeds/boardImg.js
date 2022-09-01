@@ -5,7 +5,7 @@ const w = theme.board.w; const h = theme.board.h;
 
 const draw = (ctx, grid) => {
     const rows = grid.length; const cols = grid[0].length;
-    const cellW = h/rows; const cellH = w/cols;
+    const cellW = w/cols; const cellH = h/rows; 
 
     // Basic Settings
     ctx.fillStyle = theme.board.color;
@@ -35,12 +35,16 @@ const draw = (ctx, grid) => {
 
             // Filling tiles
             if (cellVal != "") {
+                // Drawing Tile
                 ctx.fillStyle = theme.tile.color;
                 ctx.fillRect(posX, posY, cellW, cellH);
                 ctx.fillStyle = theme.tile.textColor;
-                ctx.textBaseline = "middle";
-                ctx.font = (cellW*(90/100)) + "px " + theme.tile.fontFamily;
-                ctx.fillText(cellVal, (posX+cellW)/2, (posY+cellH)/2, cellW);
+                // Drawing Tile Text
+                ctx.save();
+                ctx.textBaseline = "middle"; ctx.textAlign = "center";
+                ctx.font = (cellW*(75/100)) + "px " + theme.tile.fontFamily;
+                ctx.fillText(cellVal, posX + (cellW/2), posY + (cellH/2));
+                ctx.restore();
             }
 
             // Filling Grid Number

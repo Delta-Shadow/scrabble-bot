@@ -2,7 +2,7 @@ const theme = require("../theme.js");
 
 module.exports = {
     name: "rack",
-    aliases: ["tiles", "me"],
+    aliases: ["tiles"],
     needsGameDefn: true,
     needsGameInit: true,
     execute: (sid, cid, pid, args, msg, games, game) => {

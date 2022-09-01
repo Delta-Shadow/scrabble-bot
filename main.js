@@ -24,8 +24,8 @@ client.on("message", msg => {
         let msgChannelId = msg.channel.id;
         let msgServerId = msg.channel.guild.id;
 
-        let args = msg.content.slice(1, msg.length).toLowerCase().split(" ");
-        let cmdName = args.shift();
+        let args = msg.content.slice(1, msg.length).split(" ");
+        let cmdName = args.shift().toLowerCase();
 
         let cmd = client.commands.get(cmdName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(cmdName));
         if (!cmd) {

@@ -16,11 +16,12 @@ let Game = (_server, _chnl) => {
         // {id, Rack Instance, ptns}
     ];
     let hasStarted = false;
+    let numberOfMoves = 0;
     let turn = 0;
     
     const hasPlayer = (_id) => ((players.findIndex(player => player.id == _id) == -1) ? false : true);
 
-    const addPlayer = (_id) => { players.push({id: _id, rack: Rack(rackSize), ptns: 0}) }
+    const addPlayer = (_id) => { players.push({id: _id, rack: Rack(), ptns: 0}) }
 
     const remPlayer = (_id) => {
         let i = players.findIndex(player => player.id == _id);
@@ -33,50 +34,78 @@ let Game = (_server, _chnl) => {
         bagOfTiles.init();
         players.forEach(player => {player.rack.putTiles( bagOfTiles.pick(7) )});
         turn = 0;
+        numberOfMoves = 0;
         hasStarted = true;
     }
 
-    const place = (_startingCell, inputAxis, _tileIndices) => {
-        // basic input checking
-        let _err = null;
-        let startingCell = _startingCell - 1;
-        if (startingCell > board.totalSquares) {_err = "No such square exists. Come on."}
-        let tileIndices = _tileIndices.map(i => {
-            if (i - 1 > rack.capacity()) {_err = "You dont have a letter at the place " + i}
-            return i - 1;
-        );
-        if (_err != null) return {err: _err}
-        // input verification 
-        let {verified, verifiedCartesianInput, indicesOfTilesToBeRemovedFromRack, errMsg} = board.verifyAccomodation( rack.getTiles(tileIndices), startingCell, inputAxis, tileIndices );
-        if (verfified) {
-            board.accomodateInput(verifiedCartesianInput);
-            let words = board.evaluateInput(verifiedCartesianInput, inputAxis);
-            let score = 0;
-            words.forEach(word => {
-                let ptns = 0;
-                word.letters.forEach(letter => {ptns += rules.tileScore(letter.val) * letter.premium});
-                ptns *= word.premium; score += ptns;
-            })
-            players[turn].score += score;
-            players[turn].rack.remTiles(indicesOfTilesToBeRemovedFromRack);
-            players[turn].rack.putTiles(bagOfTiles.pick( rack.capacity() - rack.holding() ));
-            pass();
-            return {err: null};
+    const place = (startingCell, inputAxis, chars) => {
+        //let errMsg = null;
+        // checking if starting cell is within bounds
+            //if (startingCell > board.totalSquares() || startingCell < 0) {errMsg = "No such square exists. Come on."}
+        // checking if all tile indices are within bounds
+        /*    
+            tileIndices.forEach(i => {
+                if (i > players[turn].rack.capacity() || i < 0) {errMsg = "You dont have a letter in your rack at the place " + i}
+            });
+        */
+        
+        //if (errMsg != null) return {err: errMsg} // Do not proceed if anything raised an error
+
+        // input verification from board
+        let verifiedCartesianInput; let indicesOfCharsRemovedFromInput; let errMsgFromBoard;
+        let cartesianInput = board.getCartesianInput( chars, startingCell, inputAxis );
+        if (cartesianInput == null) {return {err: "Your word is out of Bounds"}}
+
+        if (numberOfMoves == 0) {
+            verifiedCartesianInput = cartesianInput;
+            indicesOfCharsRemovedFromInput = [];
+            errMsgFromBoard = null;
         } else {
-            return {err: errMsg};
+            let verificationFromBoard = board.verifyAccomodation( cartesianInput );
+            verifiedCartesianInput = verificationFromBoard.verifiedCartesianInput;
+            indicesOfCharsRemovedFromInput = verificationFromBoard.indicesOfInputsRemoved;
+            errMsgFromBoard = verificationFromBoard.errMsg;
         }
+
+        if (errMsgFromBoard != null) return {err: errMsgFromBoard} // Do not proceed if anything raised an error
+
+        // input verification from rack
+        let indicesOfChars = [];
+        indicesOfCharsRemovedFromInput.forEach(i => { chars.splice(i) });
+        let verificationFromRack = players[turn].rack.scanTiles(chars);
+        if (!verificationFromRack.okay) {
+            return {err: "You are trying to use letters you dont have in your rack"}
+        } else {
+            indicesOfChars = verificationFromRack.indices;
+        }
+
+        // Finally Do Something
+        board.accomodateInput(verifiedCartesianInput);
+        let currPlayer = players[turn];
+        let words = board.evaluateAccomodation(verifiedCartesianInput, inputAxis);
+        /*let score = 0;
+        words.forEach(word => {
+            let ptns = 0;
+            word.letters.forEach(letter => {ptns += rules.tileScore(letter.val) * letter.premium});
+            ptns *= word.premium; score += ptns;
+        })
+        players[turn].score += score;*/
+        currPlayer.rack.remTiles(indicesOfChars);
+        currPlayer.rack.putTiles(bagOfTiles.pick( currPlayer.rack.capacity() - currPlayer.rack.holding() ));
+        pass();
+        return {err: null};
     }
 
-    let xchange = (_tileIndices) => {
+    const xchange = (_tileIndices) => {
         let tileIndices = _tileIndices.map(i => i - 1);
         bagOfTiles.put( players[turn].rack.pickTiles(tileIndices) );
         players[turn].rack.putTiles(bagOfTiles.pick( rack.capacity() - rack.holding() ));
         pass();
     }
 
-    let challenge = () => {}
+    const challenge = () => {}
 
-    let pass = () => { turn = (turn + 1) % players.length }
+    const pass = () => { numberOfMoves++; turn = (turn + 1) % players.length }
 
     return {
         hasPlayer: hasPlayer,
@@ -93,10 +122,12 @@ let Game = (_server, _chnl) => {
         xchange: xchange,
         pass: pass,
 
+        getBoardCentre: () => { return board.getCentreCoords() },
         getBoardGrid: () => board.getGrid(),
         getRack: (pid) => players.find(p => p.id == pid).rack.list(),
 
-        hasTurn: (playerId) => players[turn].id == playerId
+        hasTurn: (playerId) => players[turn].id == playerId,
+        isItTheFirstMove: () => (numberOfMoves == 0 ? true : false)
     }
 }
 

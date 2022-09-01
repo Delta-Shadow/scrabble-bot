@@ -1,8 +1,8 @@
 module.exports = {
     embedColor: 0x770077,
     board: {
-        w: 700,
-        h: 700,
+        w: 1080,
+        h: 1080,
         color: "#333333",
         lineColor: "#111111",
         fontFamily: "Impact"

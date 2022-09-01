@@ -13,12 +13,16 @@ module.exports = () => {
         let pickedTiles = [];
         while (n > 0) {
             let sum = Object.values(tiles).reduce((val, res) => res + val);
+            let residue = 0;
             let rand = Math.random();
+            if (rand == 0) {rand = 1}
             for (let i in tiles) {
-                if (rand <= tiles[i]/sum && rand != 0) {
+                if (rand > residue && rand <= residue + tiles[i]/sum) {
                     pickedTiles.push(i);
                     tiles[i]--;
                     break;
+                } else {
+                    residue += tiles[i]/sum;
                 }
             }
             n--;
